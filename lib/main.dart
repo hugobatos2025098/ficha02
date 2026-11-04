@@ -1,11 +1,19 @@
-import 'package:bloc/bloc.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ficha02/app.dart';
-import 'package:ficha02/counter_observer.dart';
-import 'package:ficha02/core/di/injection_container.dart';
-void main() async {
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await setupDependencies();
-  Bloc.observer = const CounterObserver();
+
+  // 1. Lê o ficheiro .env
+  await dotenv.load(fileName: '.env');
+
+  // 2. Liga a app ao projeto Supabase
+  await Supabase.initialize(
+    url: dotenv.get('SUPABASE_URL'),
+    publishableKey: dotenv.get('SUPABASE_PUBLISHABLE_KEY'),
+  );
+
   runApp(const ProductsApp());
 }

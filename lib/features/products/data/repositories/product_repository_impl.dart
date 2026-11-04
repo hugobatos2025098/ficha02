@@ -8,4 +8,9 @@ class ProductRepositoryImpl implements ProductRepository {
   const ProductRepositoryImpl(this.remoteDataSource);
   @override
   Future<List<Product>> getProducts() => remoteDataSource.getProducts();
+  @override
+  Future<Product> createProduct({
+    required String name,
+    required double price,
+  }) => remoteDataSource.createProduct(name: name, price: price);
 }

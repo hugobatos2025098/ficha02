@@ -4,4 +4,5 @@ import '../entities/product.dart';
 // O Domain não sabe, nem quer saber, de onde vêm os produtos.
 abstract class ProductRepository {
   Future<List<Product>> getProducts();
+  Future<Product> createProduct({required String name, required double price});
 }

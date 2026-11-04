@@ -1,37 +1,36 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../domain/entities/product.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ficha02/core/error/exceptions.dart';
+import '../models/product_model.dart';
 
-// Fonte de dados remota: a API pública DummyJSON.
-// https://dummyjson.com/docs/products
+// Fonte de dados remota: a tabela products da Supabase.
 class ProductRemoteDataSource {
-  static const _baseUrl = 'https://dummyjson.com/products';
+  final SupabaseClient client;
+  const ProductRemoteDataSource(this.client);
 
-  Future<List<Product>> getProducts() async {
-    final response = await http.get(Uri.parse(_baseUrl));
-
-    if (response.statusCode != 200) {
-      throw Exception('Falha ao obter produtos (HTTP ${response.statusCode})');
+  Future<List<ProductModel>> getProducts() async {
+    try {
+      // GET /rest/v1/products?select=*&order=name.asc
+      final rows = await client.from('products').select().order('name');
+      return rows.map(ProductModel.fromJson).toList();
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
     }
+  }
 
-    final body = jsonDecode(response.body);
-    if (body is! Map<String, dynamic>) {
-      throw const FormatException('Resposta da API inválida');
+  Future<ProductModel> createProduct({
+    required String name,
+    required double price,
+  }) async {
+    try {
+      // POST /rest/v1/products, com Prefer: return=representation
+      final row = await client
+          .from('products')
+          .insert({'name': name, 'price': price})
+          .select()
+          .single();
+      return ProductModel.fromJson(row);
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
     }
-
-    final items = body['products'];
-    if (items is! List) {
-      throw const FormatException('Lista de produtos ausente na resposta');
-    }
-
-    return items.map((item) {
-      final json = item as Map<String, dynamic>;
-      return Product(
-        id: json['id'].toString(),
-        name: json['title'] as String,
-        price: (json['price'] as num).toDouble(),
-        imageUrl: json['thumbnail'] as String?,
-      );
-    }).toList();
   }
 }

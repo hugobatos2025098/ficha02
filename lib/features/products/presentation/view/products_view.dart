@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ficha02/features/products/presentation/bloc/products_bloc.dart';
 import 'package:ficha02/features/products/presentation/bloc/products_event.dart';
 import 'package:ficha02/features/products/presentation/bloc/products_state.dart';
+import 'package:ficha02/features/products/presentation/view/add_product_page.dart';
 
 // Reage ao estado do ProductsBloc e notifica-o em resposta ao input do
 // utilizador.
@@ -48,6 +49,24 @@ class ProductsView extends StatelessWidget {
           };
         },
       ),
+    floatingActionButton: FloatingActionButton(
+        tooltip: 'Novo produto',
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          // guardar o Bloc antes do await: depois dele, o context
+          // pode já não ser válido
+          final bloc = context.read<ProductsBloc>();
+          final result = await Navigator.of(context)
+              .push<({String name, double price})>(
+            MaterialPageRoute(builder: (_) => const AddProductPage()),
+          );
+          if (result == null) return; // voltou atrás sem guardar
+          bloc.add(ProductCreateRequested(
+            name: result.name,
+            price: result.price,
+          ));
+        },
+      ),    
     );
   }
 }
