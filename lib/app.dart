@@ -1,4 +1,3 @@
-import 'package:ficha02/features/products/presentation/view/products_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -30,8 +29,4 @@ class ProductsApp extends StatelessWidget {
       child: const MaterialApp(home: AuthGate()),
     );
   }
-}
-// Um MaterialApp que define a ProductsPage como home.
-class ProductsApp extends MaterialApp {
-  const ProductsApp({super.key}) : super(home: const ProductsPage());
 }
